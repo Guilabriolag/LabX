@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#001F80">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LAB-X">
+<link rel="manifest" href="manifest.json">
+<title>LAB-X 3.0 | Data Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0047FF;--blue-dk:#0035CC;--blue-dp:#001F80;--blue-bg:#F0F4FF;--blue-cd:#E8EEFF;
+  --amber:#FDCB6E;--amber-dk:#E6A817;--amber-dp:#B8830A;
+  --green:#00B894;--green-dk:#009E7F;--red:#E74C3C;--yellow:#F39C12;
+  --white:#FFFFFF;--bg:#F2F5FA;--surf:#FFFFFF;--surf2:#F8FAFC;
+  --border:#DDE3EE;--txt:#0A1628;--txt2:#3D4F6E;--muted:#7A8BA8;
+  --sh:0 4px 20px rgba(0,71,255,.08);--sh-lg:0 8px 40px rgba(0,71,255,.14);
+  --rating-aaa:#00B894;--rating-aa:#27AE60;--rating-a:#2ECC71;
+  --rating-b:#F39C12;--rating-c:#E67E22;--rating-d:#E74C3C;--rating-e:#8B0000;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--txt);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,var(--blue-dp) 0%,var(--blue-dk) 50%,var(--blue) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;animation:splashOut .5s ease 3.2s forwards;}
+@keyframes splashOut{to{opacity:0;pointer-events:none;}}
+.spl-h{font-family:'IBM Plex Mono',monospace;font-size:.46rem;letter-spacing:.4em;color:rgba(255,255,255,.3);animation:up .6s ease .2s both;}
+.spl-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:4.5rem;letter-spacing:.08em;color:#fff;line-height:1;animation:up .6s ease .4s both;}
+.spl-logo span{color:var(--amber);}
+.spl-v{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.3em;color:rgba(255,255,255,.4);animation:up .5s ease .7s both;}
+.spl-bar{width:200px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-top:8px;animation:up .4s ease 1s both;}
+.spl-prog{height:100%;background:var(--amber);animation:prog 2.2s ease 1.1s forwards;width:0;}
+@keyframes prog{to{width:100%;}} @keyframes up{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* LAYOUT */
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;position:relative;}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--blue-dp) 0%,var(--blue-dk) 60%,var(--blue) 100%);border-bottom:3px solid var(--amber);padding:0 20px;position:sticky;top:0;z-index:100;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px;}
+.hdr-brand{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.7rem;letter-spacing:.06em;color:#fff;line-height:1;}
+.hdr-brand span{color:var(--amber);}
+.hdr-sub{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.18em;color:rgba(255,255,255,.3);margin-top:1px;}
+.hdr-r{text-align:right;}
+.hdr-clock{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--amber);font-weight:600;}
+.hdr-st{font-family:'IBM Plex Mono',monospace;font-size:.38rem;letter-spacing:.15em;color:rgba(255,255,255,.3);margin-top:2px;}
+.sdot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:3px;}
+.pulse{animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.wbadge{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:.36rem;letter-spacing:.12em;color:rgba(255,255,255,.4);}
+.wdot{width:4px;height:4px;border-radius:50%;background:var(--muted);}
+.wdot.on{background:var(--green);}
+
+/* BOTTOM NAV */
+.bnav{display:flex;background:var(--white);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,71,255,.06);position:sticky;bottom:0;z-index:100;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 2px;font-family:'Barlow Condensed',sans-serif;font-size:.52rem;font-weight:700;letter-spacing:.05em;color:var(--muted);cursor:pointer;border:none;background:none;text-transform:uppercase;transition:color .2s;border-top:3px solid transparent;}
+.nb svg{width:17px;height:17px;}
+.nb.active{color:var(--blue);border-top-color:var(--blue);}
+
+/* SCREENS */
+.screen{display:none;flex:1;overflow-y:auto;}
+.screen.active{display:block;}
+
+/* SEC HEADER */
+.sh{background:linear-gradient(135deg,var(--blue-dp) 0%,var(--blue) 100%);padding:18px 20px;border-bottom:2px solid var(--amber);}
+.sh-t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;letter-spacing:.08em;color:#fff;}
+.sh-s{font-family:'IBM Plex Mono',monospace;font-size:.44rem;letter-spacing:.15em;color:rgba(255,255,255,.4);margin-top:3px;}
+
+/* CARD */
+.card{background:var(--surf);border-radius:14px;padding:18px;margin-bottom:14px;border:1px solid var(--border);box-shadow:var(--sh);}
+.card-lbl{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+
+/* ── ECONOMIC FEED ─────────────────────────────────────────── */
+.feed-wrap{background:linear-gradient(135deg,#00102A,#001F80);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid rgba(0,71,255,.3);overflow:hidden;position:relative;}
+.feed-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--amber),var(--blue));}
+.feed-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.15em;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.feed-live{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.2em;color:var(--green);background:rgba(0,184,148,.15);padding:2px 6px;border-radius:3px;border:1px solid rgba(0,184,148,.3);}
+.feed-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.feed-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;position:relative;overflow:hidden;}
+.feed-item::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--amber);opacity:.5;}
+.fi-lbl{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.2em;color:rgba(255,255,255,.4);text-transform:uppercase;}
+.fi-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:var(--amber);line-height:1;margin:4px 0 1px;}
+.fi-date{font-family:'IBM Plex Mono',monospace;font-size:.38rem;color:rgba(255,255,255,.25);}
+.fi-trend{font-size:.55rem;margin-left:4px;}
+.feed-src{font-family:'IBM Plex Mono',monospace;font-size:.38rem;color:rgba(255,255,255,.2);margin-top:10px;text-align:right;letter-spacing:.1em;}
+
+/* ── RATING MSCL ──────────────────────────────────────────── */
+.rating-card{background:var(--surf);border-radius:14px;padding:18px;margin-bottom:14px;border:1px solid var(--border);box-shadow:var(--sh);position:relative;overflow:hidden;}
+.rating-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.rating-badge{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:3rem;letter-spacing:.05em;line-height:1;}
+.rating-desc{font-size:.75rem;color:var(--txt2);margin-top:4px;font-weight:500;}
+.rating-score{font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:var(--muted);margin-top:2px;}
+.pilares-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;}
+.pilar{background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+.pilar-lbl{font-family:'IBM Plex Mono',monospace;font-size:.38rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.pilar-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;color:var(--blue);}
+
+/* STAT GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
+.sc{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--amber));}
+.sc-n{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.8rem;color:var(--blue);line-height:1;margin-bottom:2px;}
+.sc-l{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;font-weight:600;}
+.sc-d{font-size:.58rem;color:var(--muted);margin-top:2px;}
+
+/* ANALYSIS CARD */
+.acard{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:14px;margin:0 14px 10px;cursor:pointer;box-shadow:var(--sh);transition:box-shadow .2s,transform .2s;position:relative;overflow:hidden;}
+.acard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--blue),var(--amber));}
+.acard:hover{box-shadow:var(--sh-lg);transform:translateY(-1px);}
+.ac-n{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:.04em;color:var(--txt);}
+.ac-m{font-family:'IBM Plex Mono',monospace;font-size:.42rem;color:var(--muted);letter-spacing:.08em;margin-top:3px;}
+.ac-rt{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;position:absolute;right:14px;top:14px;}
+.tags{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:.44rem;font-weight:600;padding:2px 7px;border-radius:3px;letter-spacing:.06em;}
+.tg{background:#E8F8F5;color:var(--green-dk);border:1px solid #B2DFD8;}
+.ty{background:#FFF8E7;color:var(--amber-dp);border:1px solid #F5D79E;}
+.tr{background:#FDECEA;color:var(--red);border:1px solid #F5B4B0;}
+.tb{background:var(--blue-cd);color:var(--blue-dk);border:1px solid #B8C8FF;}
+
+.btn-new{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 14px 18px;padding:15px;background:linear-gradient(135deg,var(--blue),var(--blue-dk));border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;letter-spacing:.2em;border-radius:10px;cursor:pointer;box-shadow:0 6px 20px rgba(0,71,255,.3);transition:box-shadow .2s,transform .2s;text-transform:uppercase;}
+.btn-new:hover{box-shadow:0 10px 30px rgba(0,71,255,.4);transform:translateY(-1px);}
+.slbl{font-family:'IBM Plex Mono',monospace;font-size:.46rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;font-weight:600;padding:14px 14px 8px;display:block;}
+.empty{text-align:center;padding:36px 20px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.56rem;letter-spacing:.1em;line-height:2.5;}
+
+/* WORKER PANEL */
+.wp{background:linear-gradient(135deg,#001260,#0035CC);border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid rgba(0,71,255,.3);}
+.wp-t{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;letter-spacing:.1em;color:#fff;margin-bottom:10px;}
+.wp-row{display:flex;gap:8px;align-items:flex-end;}
+.wp-fi{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;padding:9px 11px;font-family:'IBM Plex Mono',monospace;font-size:.65rem;outline:none;}
+.wp-fi::placeholder{color:rgba(255,255,255,.3);}
+.wp-fi:focus{border-color:var(--amber);}
+.wp-btn{background:var(--amber);color:var(--blue-dp);border:none;border-radius:6px;padding:9px 13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.72rem;letter-spacing:.1em;cursor:pointer;white-space:nowrap;transition:background .2s;}
+.wp-btn:hover{background:var(--amber-dk);}
+.wp-st{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:rgba(255,255,255,.45);margin-top:7px;min-height:13px;}
+.wp-st.ok{color:var(--green);} .wp-st.err{color:var(--red);}
+
+/* FORM */
+.fw{padding:14px;}
+.fg{margin-bottom:12px;}
+.fl{font-family:'IBM Plex Mono',monospace;font-size:.46rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600;display:block;margin-bottom:5px;}
+.fi{width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:8px;color:var(--txt);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:.82rem;font-weight:500;outline:none;transition:border-color .2s;}
+.fi:focus{border-color:var(--blue);background:var(--white);}
+.fi-sel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A8BA8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;appearance:none;}
+.dtbl{width:100%;border-collapse:collapse;overflow:hidden;border-radius:10px;border:1px solid var(--border);}
+.dtbl th{background:linear-gradient(135deg,var(--blue-dp),var(--blue));color:rgba(255,255,255,.6);font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.2em;text-transform:uppercase;padding:9px 7px;text-align:left;font-weight:600;}
+.dtbl tr:nth-child(even) td{background:var(--surf2);}
+.dtbl tr:nth-child(odd) td{background:var(--white);}
+.dtbl td{padding:7px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.dtbl tr:last-child td{border-bottom:none;}
+.tdiv{background:linear-gradient(90deg,#001260,#0035CC)!important;font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.25em;color:rgba(255,255,255,.4)!important;padding:6px 9px!important;text-transform:uppercase;}
+.dsym{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.95rem;color:var(--blue);line-height:1;}
+.dnm{font-size:.54rem;color:var(--txt2);margin-top:1px;font-weight:500;}
+.msldr{width:100%;-webkit-appearance:none;height:3px;background:var(--border);outline:none;cursor:pointer;border-radius:2px;}
+.msldr::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:var(--blue);border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(0,71,255,.3);}
+.sval{font-family:'IBM Plex Mono',monospace;font-size:.54rem;color:var(--blue);font-weight:700;text-align:center;margin-top:2px;}
+.msel{width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:5px;color:var(--txt);padding:4px 5px;font-family:'IBM Plex Mono',monospace;font-size:.42rem;outline:none;cursor:pointer;}
+.mnote{width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:5px;color:var(--txt);padding:5px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:.63rem;font-weight:700;outline:none;transition:border-color .2s;}
+.mnote:focus{border-color:var(--blue);}
+.autofill-badge{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:.43rem;padding:3px 8px;border-radius:3px;background:rgba(0,184,148,.1);color:var(--green-dk);border:1px solid rgba(0,184,148,.3);letter-spacing:.05em;margin-bottom:12px;}
+.btn-sub{width:100%;padding:15px;background:linear-gradient(135deg,var(--green-dk),var(--green));border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.25em;border-radius:10px;cursor:pointer;margin-top:14px;box-shadow:0 6px 20px rgba(0,184,148,.35);text-transform:uppercase;transition:transform .2s,box-shadow .2s;}
+.btn-sub:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,184,148,.4);}
+.btn-sub:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+/* ORÁCULO */
+.oh{background:linear-gradient(135deg,var(--blue-dp) 0%,var(--blue-dk) 60%,var(--blue) 100%);border-bottom:3px solid var(--amber);padding:18px 20px;}
+.oh-tag{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.3em;color:rgba(255,255,255,.3);margin-bottom:5px;}
+.oh-t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;letter-spacing:.06em;color:#fff;margin-bottom:2px;}
+.oh-s{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:rgba(255,255,255,.4);letter-spacing:.15em;}
+.sbar{background:var(--white);border-radius:9px;display:flex;padding:5px;box-shadow:0 8px 24px rgba(0,0,0,.15);margin-top:12px;}
+.sbar input{flex:1;border:none;padding:9px 11px;font-family:'Barlow',sans-serif;font-size:.82rem;font-weight:600;outline:none;color:var(--txt);background:transparent;}
+.sbar button{background:var(--blue);color:#fff;border:none;padding:9px 15px;border-radius:7px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.82rem;letter-spacing:.1em;cursor:pointer;transition:background .2s;}
+.sbar button:hover{background:var(--blue-dk);}
+.stabs{display:flex;background:var(--white);border-bottom:1px solid var(--border);}
+.stab{flex:1;text-align:center;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.08em;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:color .2s;border-bottom:3px solid transparent;}
+.stab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.scnt{display:none;}
+.scnt.active{display:block;}
+.iac-v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2.8rem;letter-spacing:-.02em;color:var(--blue);line-height:1;margin:6px 0;}
+.srcb{background:var(--blue-cd);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:11px 13px;margin-top:12px;}
+.srct{font-family:'IBM Plex Mono',monospace;font-size:.54rem;color:var(--txt2);line-height:1.8;}
+.srct strong{color:var(--blue-dk);}
+.rsvg{background:var(--surf2);border-radius:9px;padding:14px;margin:10px 0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;border:1px solid var(--border);}
+.rsvg-l{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;}
+.fn{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--surf2);font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:500;color:var(--txt);outline:none;margin:5px 0 12px;transition:border-color .2s;}
+.fn:focus{border-color:var(--blue);background:var(--white);}
+.bcalc{width:100%;padding:15px;background:linear-gradient(135deg,var(--green-dk),var(--green));color:#fff;border:none;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.95rem;letter-spacing:.2em;cursor:pointer;text-transform:uppercase;box-shadow:0 6px 20px rgba(0,184,148,.3);transition:transform .2s,box-shadow .2s;}
+.bcalc:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,184,148,.4);}
+.bridge-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--blue-dp),var(--blue));color:#fff;border:none;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;box-shadow:0 6px 20px rgba(0,71,255,.3);transition:all .2s;margin-top:10px;display:none;}
+.bridge-btn.show{display:block;}
+.bridge-btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(0,71,255,.4);}
+
+/* DETAIL */
+.dw{padding:14px;}
+.bbk{display:inline-flex;align-items:center;gap:6px;background:none;border:1.5px solid var(--border);border-radius:7px;color:var(--muted);padding:7px 13px;font-family:'IBM Plex Mono',monospace;font-size:.46rem;letter-spacing:.1em;cursor:pointer;margin-bottom:14px;transition:all .2s;}
+.bbk:hover{border-color:var(--blue);color:var(--blue);}
+.dt-t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;letter-spacing:.06em;color:var(--txt);margin-bottom:3px;}
+.dt-m{font-family:'IBM Plex Mono',monospace;font-size:.42rem;color:var(--muted);letter-spacing:.08em;margin-bottom:14px;}
+.rw{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:14px;box-shadow:var(--sh);}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.rc{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.rc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--amber));}
+.rl{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.rv{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:var(--blue);line-height:1;}
+.rs{font-size:.56rem;color:var(--muted);margin-top:2px;}
+.drw{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);}
+.drw-s{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.95rem;color:var(--blue);width:34px;text-align:center;flex-shrink:0;}
+.drw-i{flex:1;}
+.drw-n{font-size:.66rem;font-weight:600;color:var(--txt);}
+.drw-e{font-family:'IBM Plex Mono',monospace;font-size:.4rem;color:var(--muted);margin-top:1px;}
+.drw-b{width:76px;}
+.drw-tr{height:4px;background:var(--border);border-radius:2px;margin-bottom:2px;overflow:hidden;}
+.drw-f{height:100%;border-radius:2px;}
+.drw-v{font-family:'IBM Plex Mono',monospace;font-size:.56rem;font-weight:700;text-align:right;}
+.exp-r{display:flex;gap:9px;margin-top:14px;}
+.bex{flex:1;padding:11px;background:var(--surf2);border:1.5px solid var(--border);border-radius:7px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.44rem;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.bex:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-cd);}
+.bex.d:hover{border-color:var(--red);color:var(--red);background:#FDECEA;}
+
+/* ── COMPARAR ─────────────────────────────────────────────── */
+.cmp-sel{display:flex;gap:8px;margin-bottom:14px;align-items:center;}
+.cmp-sel select{flex:1;background:var(--surf2);border:1.5px solid var(--border);border-radius:7px;color:var(--txt);padding:9px 11px;font-family:'IBM Plex Mono',monospace;font-size:.5rem;outline:none;cursor:pointer;}
+.cmp-sel select:focus{border-color:var(--blue);}
+.btn-cmp{background:linear-gradient(135deg,var(--blue-dp),var(--blue));color:#fff;border:none;border-radius:7px;padding:9px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.7rem;letter-spacing:.1em;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+.btn-cmp:hover{opacity:.9;}
+.gap-tbl{width:100%;border-collapse:collapse;margin-top:12px;}
+.gap-tbl th{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.gap-tbl td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.gap-sym{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.9rem;color:var(--blue);}
+.gap-nm{font-size:.62rem;color:var(--txt2);}
+.gap-bar{display:flex;align-items:center;gap:4px;}
+.gap-fill{height:3px;border-radius:2px;flex-shrink:0;}
+.gap-val{font-family:'IBM Plex Mono',monospace;font-size:.52rem;font-weight:700;width:28px;text-align:right;}
+.gap-delta{font-family:'IBM Plex Mono',monospace;font-size:.46rem;font-weight:700;}
+
+/* HIST */
+.hw{padding:14px;}
+.ht{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.ht-t{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;letter-spacing:.06em;color:var(--txt);}
+.bimp{background:var(--surf2);border:1.5px solid var(--border);border-radius:7px;color:var(--muted);padding:7px 11px;font-family:'IBM Plex Mono',monospace;font-size:.44rem;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.bimp:hover{border-color:var(--blue);color:var(--blue);}
+
+/* LOADING */
+.loading{position:fixed;inset:0;z-index:9998;background:rgba(0,31,128,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0;pointer-events:none;transition:opacity .3s;}
+.loading.show{opacity:1;pointer-events:all;}
+.ld-ring{width:46px;height:46px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--amber);border-radius:50%;animation:spin 1s linear infinite;}
+.ld-t{font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:rgba(255,255,255,.6);}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* IBGE badge */
+.ibge-badge{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:.44rem;padding:3px 8px;border-radius:4px;background:rgba(0,184,148,.1);color:var(--green-dk);border:1px solid rgba(0,184,148,.3);}
+
+::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* IBGE row in form */
+.ibge-row{background:linear-gradient(90deg,rgba(0,71,255,.04),transparent);border:1px solid rgba(0,71,255,.12);border-radius:8px;padding:10px 12px;margin-bottom:12px;display:none;}
+.ibge-row.show{display:block;}
+.ibge-data-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;}
+.ibge-d-item{background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:7px;text-align:center;}
+.ibge-d-lbl{font-family:'IBM Plex Mono',monospace;font-size:.38rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.ibge-d-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;color:var(--blue);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="spl-h">LABRIOLAG HOLDING · DATA INTELLIGENCE 3.0</div>
+  <div class="spl-logo">LAB<span>-X</span></div>
+  <div class="spl-v">VERSÃO 3.0 · IBGE · BCB · RATING MSCL</div>
+  <div class="spl-bar"><div class="spl-prog"></div></div>
+</div>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="ld-ring"></div>
+  <div class="ld-t" id="loading-msg">PROCESSANDO...</div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="hdr-brand">LAB<span>-X</span> <span style="font-size:.85rem;color:rgba(255,255,255,.45);">3.0</span></div>
+        <div class="hdr-sub">DATA INTELLIGENCE · LABRIOLAG HOLDING</div>
+        <div class="wbadge"><div class="wdot" id="wdot"></div><span id="wst-txt">WORKER: OFFLINE</span></div>
+      </div>
+      <div class="hdr-r">
+        <div class="hdr-clock" id="clock">--:--:--</div>
+        <div class="hdr-st"><span class="sdot pulse"></span>SISTEMA ATIVO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: DASHBOARD ════════════════════════════════════════════ -->
+  <div id="screen-dash" class="screen active">
+    <div class="sh"><div class="sh-t">DASHBOARD</div><div class="sh-s" id="dash-date"></div></div>
+
+    <div style="padding:14px 14px 0;">
+      <!-- Worker Config -->
+      <div class="wp">
+        <div class="wp-t">⚡ CLOUDFLARE WORKER 3.0</div>
+        <div class="wp-row">
+          <input class="wp-fi" id="worker-url" type="url" placeholder="https://labx-worker.SEU.workers.dev">
+          <button class="wp-btn" onclick="testarWorker()">CONECTAR</button>
+        </div>
+        <div class="wp-st" id="wp-st">Configure o endpoint acima para ativar IBGE + BCB.</div>
+      </div>
+
+      <!-- ECONOMIC FEED -->
+      <div class="feed-wrap" id="feed-wrap">
+        <div class="feed-title">
+          ECONOMIC FEED
+          <span class="feed-live pulse">● LIVE BCB</span>
+        </div>
+        <div class="feed-grid">
+          <div class="feed-item">
+            <div class="fi-lbl">SELIC (% a.a.)</div>
+            <div class="fi-val" id="feed-selic">—<span class="fi-trend" id="trend-selic"></span></div>
+            <div class="fi-date" id="feed-selic-dt">BCB · SGS #11</div>
+          </div>
+          <div class="feed-item">
+            <div class="fi-lbl">IPCA (% mês)</div>
+            <div class="fi-val" id="feed-ipca">—<span class="fi-trend" id="trend-ipca"></span></div>
+            <div class="fi-date" id="feed-ipca-dt">BCB · SGS #433</div>
+          </div>
+          <div class="feed-item">
+            <div class="fi-lbl">IBC-Br (índice)</div>
+            <div class="fi-val" id="feed-ibcbr">—<span class="fi-trend" id="trend-ibcbr"></span></div>
+            <div class="fi-date" id="feed-ibcbr-dt">BCB · SGS #24363</div>
+          </div>
+          <div class="feed-item">
+            <div class="fi-lbl">USD/BRL (PTAX)</div>
+            <div class="fi-val" id="feed-cambio">—</div>
+            <div class="fi-date" id="feed-cambio-dt">BCB · PTAX</div>
+          </div>
+        </div>
+        <div class="feed-src" id="feed-src">Aguardando Worker...</div>
+      </div>
+    </div>
+
+    <div class="sgrid">
+      <div class="sc"><div class="sc-l">Análises</div><div class="sc-n" id="total-count">0</div><div class="sc-d">registradas</div></div>
+      <div class="sc"><div class="sc-l">Rating</div><div class="sc-n" id="last-rating" style="font-size:1.4rem;padding-top:2px;">—</div><div class="sc-d">último MSCL</div></div>
+      <div class="sc"><div class="sc-l">Vetores</div><div class="sc-n">16</div><div class="sc-d">direções</div></div>
+      <div class="sc"><div class="sc-l">Motor</div><div class="sc-n" id="engine-mode" style="font-size:.9rem;padding-top:4px;">LOCAL</div><div class="sc-d">fonte de dados</div></div>
+    </div>
+
+    <span class="slbl">ANÁLISES RECENTES</span>
+    <div id="dash-list"></div>
+    <button class="btn-new" onclick="goTo('new')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      NOVA ANÁLISE VETORIAL
+    </button>
+  </div>
+
+  <!-- ══ SCREEN: NEW ANALYSIS ════════════════════════════════════════════ -->
+  <div id="screen-new" class="screen">
+    <div class="sh"><div class="sh-t">NOVA ANÁLISE</div><div class="sh-s" id="new-eng-lbl">MOTOR: LOCAL</div></div>
+    <div class="fw">
+      <div class="fg"><label class="fl">Nome da Análise</label><input class="fi" id="analysis-name" type="text" placeholder="Ex: Diagnóstico Q2 2025"></div>
+      <div class="fg"><label class="fl">Contexto / Projeto</label><input class="fi" id="analysis-context" type="text" placeholder="Ex: Expansão de mercado regional"></div>
+      <div class="fg"><label class="fl">Código IBGE do Município (7 dígitos)</label>
+        <div style="display:flex;gap:8px;">
+          <input class="fi" id="cod-ibge" type="text" placeholder="ex: 3539400" maxlength="7" style="flex:1">
+          <button onclick="buscarIBGE()" style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:0 14px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.75rem;letter-spacing:.1em;cursor:pointer;white-space:nowrap;">BUSCAR</button>
+        </div>
+      </div>
+      <!-- IBGE data display -->
+      <div class="ibge-row" id="ibge-row">
+        <div class="ibge-badge">✦ DADOS IBGE/CEMPRE CARREGADOS</div>
+        <div class="ibge-data-grid" id="ibge-data-grid"></div>
+      </div>
+      <div class="fg"><label class="fl">Modo de Análise</label>
+        <select class="fi fi-sel" id="analysis-modo">
+          <option value="1.0">Padrão (×1.0)</option>
+          <option value="1.2">Otimista (×1.2)</option>
+          <option value="0.8">Conservador (×0.8)</option>
+          <option value="1.5">Expansivo (×1.5)</option>
+        </select>
+      </div>
+      <div id="autofill-notice" style="display:none;"><div class="autofill-badge">✦ VETORES PRÉ-CALCULADOS PELO ORÁCULO</div></div>
+      <span class="slbl" style="padding:0;display:block;margin:12px 0 9px;">BÚSSOLA — 16 DIREÇÕES</span>
+      <table class="dtbl" id="dir-form"></table>
+      <button class="btn-sub" id="btn-calcular" onclick="submitAnalysis()">CALCULAR VETORES + RATING</button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: ORÁCULO ════════════════════════════════════════════ -->
+  <div id="screen-orculo" class="screen">
+    <div class="oh">
+      <div class="oh-tag">LABRIOLAG HOLDING</div>
+      <div class="oh-t">ORÁCULO TERRITORIAL</div>
+      <div class="oh-s">DATA INTELLIGENCE · IBGE + BCB + MSCL</div>
+      <div class="sbar">
+        <input type="text" id="cityInput" placeholder="Município (ex: Pirapora do Bom Jesus)">
+        <button onclick="analisar()">SCAN</button>
+      </div>
+    </div>
+    <div class="stabs">
+      <div class="stab active" onclick="stab(this,'t-diag')">DIAGNÓSTICO</div>
+      <div class="stab" onclick="stab(this,'t-dados')">PARÂMETROS</div>
+      <div class="stab" onclick="stab(this,'t-bussola')">BÚSSOLA</div>
+    </div>
+    <div style="padding:14px;">
+
+      <!-- DIAGNÓSTICO -->
+      <div class="scnt active" id="t-diag">
+        <div class="card">
+          <div class="card-lbl">IAC — Índice de Atratividade Comercial</div>
+          <div class="iac-v" id="iac-val">0.0</div>
+          <p style="font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:4px;" id="city-name">Aguardando entrada de dados...</p>
+          <!-- Rating inline -->
+          <div id="rating-inline" style="display:none; margin:10px 0;">
+            <div class="rating-card" id="ri-card">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div>
+                  <div class="card-lbl">RATING MSCL</div>
+                  <div class="rating-badge" id="ri-badge">—</div>
+                  <div class="rating-desc" id="ri-desc"></div>
+                  <div class="rating-score" id="ri-score"></div>
+                </div>
+                <div class="pilares-grid" style="flex:1;">
+                  <div class="pilar"><div class="pilar-lbl">Tração</div><div class="pilar-val" id="ri-tracao">—</div></div>
+                  <div class="pilar"><div class="pilar-lbl">Liquidez</div><div class="pilar-val" id="ri-liquidez">—</div></div>
+                  <div class="pilar"><div class="pilar-lbl">IAC</div><div class="pilar-val" id="ri-iac">—</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="rsvg">
+            <svg viewBox="0 0 100 100" width="155" height="155">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#DDE3EE" stroke-width="1"/>
+              <circle cx="50" cy="50" r="30" fill="none" stroke="#DDE3EE" stroke-width="1"/>
+              <circle cx="50" cy="50" r="15" fill="none" stroke="#DDE3EE" stroke-width=".5"/>
+              <line x1="50" y1="5" x2="50" y2="95" stroke="#DDE3EE" stroke-width=".5"/>
+              <line x1="5" y1="50" x2="95" y2="50" stroke="#DDE3EE" stroke-width=".5"/>
+              <line x1="18" y1="18" x2="82" y2="82" stroke="#DDE3EE" stroke-width=".4"/>
+              <line x1="82" y1="18" x2="18" y2="82" stroke="#DDE3EE" stroke-width=".4"/>
+              <polygon id="mini-radar" points="50,50 50,50 50,50 50,50" fill="rgba(0,71,255,.15)" stroke="#0047FF" stroke-width="1.5"/>
+              <circle cx="50" cy="50" r="2.5" fill="#0047FF"/>
+            </svg>
+            <div class="rsvg-l">ASSINATURA VETORIAL · LABNET</div>
+          </div>
+          <button class="bridge-btn" id="bridge-btn" onclick="bridgeToAnalysis()">↗ GERAR MATRIZ VETORIAL COMPLETA · 16 DIREÇÕES</button>
+          <div class="srcb" style="margin-top:10px;">
+            <div class="srct">
+              <strong>Fontes de Dados:</strong><br>
+              • IBGE CEMPRE: <strong id="src-ibge">—</strong><br>
+              • BCB SGS: <strong id="src-bcb">SELIC · IPCA · IBC-Br</strong><br>
+              • Rating: <strong>MSCL Labriolag</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARÂMETROS -->
+      <div class="scnt" id="t-dados">
+        <div class="card">
+          <div class="card-lbl">Parâmetros de Cálculo</div>
+          <div style="margin-top:12px;">
+            <label class="fl">Código IBGE do Município</label>
+            <input type="text" class="fn" id="cod-mun" placeholder="ex: 3539400 (Pirapora do Bom Jesus)">
+            <label class="fl">Renda Per Capita Regional (R$)</label>
+            <input type="number" class="fn" id="renda" placeholder="ex: 2500">
+            <label class="fl">Densidade Comercial (Empresas/km²)</label>
+            <input type="number" class="fn" id="cnpjs" placeholder="ex: 80">
+            <label class="fl">População Municipal</label>
+            <input type="number" class="fn" id="populacao" placeholder="ex: 50000">
+            <label class="fl">PIB Per Capita (mil R$)</label>
+            <input type="number" class="fn" id="pib" placeholder="ex: 35">
+            <button class="bcalc" onclick="calcularIAC()">CALCULAR MATRIZ + RATING</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Fórmula IAC 3.0 + MSCL</div>
+          <div style="margin-top:10px;font-size:.65rem;color:var(--txt2);line-height:1.9;font-family:'IBM Plex Mono',monospace;">
+            <span style="color:var(--blue);font-weight:600;">── VETORES ──</span><br>
+            S  = CEMPRE(emprs) × 0.5 + renda × 0.2<br>
+            SSE = IBC-Br × 0.7 + (1-IPCA) × 0.3<br>
+            SO  = SELIC_norm × 0.4 + saturação × 0.4<br>
+            ONO = (NO+NE)/2 × fatorIBC<br><br>
+            <span style="color:var(--blue);font-weight:600;">── IAC ──</span><br>
+            IAC = Card×0.5 + Col×0.3 + Sub×0.2<br><br>
+            <span style="color:var(--blue);font-weight:600;">── RATING MSCL ──</span><br>
+            Tração  = CEMPRE/pop × fatorIBC (40%)<br>
+            Liquidez = renda_real × (1-SELIC) (35%)<br>
+            IAC  = Score vetorial (25%)
+          </div>
+        </div>
+      </div>
+
+      <!-- BÚSSOLA -->
+      <div class="scnt" id="t-bussola">
+        <div class="card">
+          <div class="card-lbl">Bússola Vetorial — 16D</div>
+          <div id="bussola-info" style="margin:8px 0;font-size:.65rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.8;">
+            Execute o cálculo em PARÂMETROS para ativar.
+          </div>
+          <div class="rsvg" style="min-height:210px;">
+            <svg viewBox="0 0 120 120" width="195" height="195">
+              <circle cx="60" cy="60" r="55" fill="none" stroke="#DDE3EE" stroke-width=".8"/>
+              <circle cx="60" cy="60" r="40" fill="none" stroke="#DDE3EE" stroke-width=".8"/>
+              <circle cx="60" cy="60" r="22" fill="none" stroke="#DDE3EE" stroke-width=".8"/>
+              <line x1="60" y1="5" x2="60" y2="115" stroke="#DDE3EE" stroke-width=".5"/>
+              <line x1="5" y1="60" x2="115" y2="60" stroke="#DDE3EE" stroke-width=".5"/>
+              <line x1="21" y1="21" x2="99" y2="99" stroke="#DDE3EE" stroke-width=".4"/>
+              <line x1="99" y1="21" x2="21" y2="99" stroke="#DDE3EE" stroke-width=".4"/>
+              <text x="60" y="11" text-anchor="middle" font-family="Barlow Condensed" font-weight="900" font-size="8" fill="#0047FF">N</text>
+              <text x="60" y="116" text-anchor="middle" font-family="Barlow Condensed" font-weight="900" font-size="8" fill="#0047FF">S</text>
+              <text x="115" y="63" text-anchor="middle" font-family="Barlow Condensed" font-weight="900" font-size="8" fill="#0047FF">L</text>
+              <text x="6" y="63" text-anchor="middle" font-family="Barlow Condensed" font-weight="900" font-size="8" fill="#0047FF">O</text>
+              <polygon id="compass-shape" points="60,60 60,60 60,60 60,60 60,60 60,60 60,60 60,60" fill="rgba(0,71,255,.15)" stroke="#0047FF" stroke-width="1.5"/>
+              <circle cx="60" cy="60" r="3" fill="#0047FF"/>
+            </svg>
+            <div class="rsvg-l">BÚSSOLA VETORIAL LABNET 3.0</div>
+          </div>
+          <div id="bussola-grid-wrap" style="display:none;">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;" id="bussola-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: COMPARAR ════════════════════════════════════════════ -->
+  <div id="screen-cmp" class="screen">
+    <div class="sh"><div class="sh-t">COMPARAR</div><div class="sh-s">ANÁLISE DE GAP · 16 VETORES SOBREPOSTOS</div></div>
+    <div style="padding:14px;">
+      <div class="card">
+        <div class="card-lbl">Selecionar Análises</div>
+        <div class="cmp-sel" style="margin-top:10px;">
+          <select id="cmp-a" style="flex:1"><option value="">— Análise A —</option></select>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;color:var(--muted);">VS</span>
+          <select id="cmp-b" style="flex:1"><option value="">— Análise B —</option></select>
+        </div>
+        <button class="btn-cmp" onclick="compararAnalises()" style="width:100%;padding:12px;">GERAR COMPARAÇÃO</button>
+      </div>
+      <div id="cmp-result" style="display:none;">
+        <div class="card">
+          <div class="card-lbl">Radar Comparativo</div>
+          <div style="background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:10px;margin-top:10px;">
+            <canvas id="cmpChart" height="300"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">Análise de GAP por Vetor</div>
+          <table class="gap-tbl" id="gap-table"></table>
+        </div>
+        <div class="card" id="cmp-summary"></div>
+      </div>
+      <div id="cmp-empty" class="empty">SELECIONE DUAS ANÁLISES<br>PARA COMPARAR OS VETORES</div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: DETAIL ════════════════════════════════════════════ -->
+  <div id="screen-detail" class="screen">
+    <div class="dw">
+      <button class="bbk" onclick="goBack()">← VOLTAR</button>
+      <div class="dt-t" id="detail-title"></div>
+      <div class="dt-m" id="detail-meta"></div>
+      <!-- Rating block -->
+      <div id="detail-rating" style="margin-bottom:14px;"></div>
+      <div class="rw"><canvas id="radarChart" height="300"></canvas></div>
+      <div class="rgrid" id="results-grid"></div>
+      <span class="slbl" style="padding:0;display:block;margin-bottom:9px;">VETORES DETALHADOS</span>
+      <div id="detail-dirs"></div>
+      <div class="exp-r">
+        <button class="bex" onclick="exportCurrentJSON()">↓ EXPORTAR JSON</button>
+        <button class="bex" onclick="syncWorker()" id="btn-sync" style="display:none;">☁ SYNC</button>
+        <button class="bex d" onclick="deleteCurrentAnalysis()">✕ EXCLUIR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: HISTORY ════════════════════════════════════════════ -->
+  <div id="screen-history" class="screen">
+    <div class="hw">
+      <div class="ht">
+        <div class="ht-t">HISTÓRICO</div>
+        <label class="bimp">↑ IMPORTAR<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="nb active" id="nav-dash" onclick="goTo('dash')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      INÍCIO
+    </button>
+    <button class="nb" id="nav-new" onclick="goTo('new')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      ANALISAR
+    </button>
+    <button class="nb" id="nav-orculo" onclick="goTo('orculo')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      ORÁCULO
+    </button>
+    <button class="nb" id="nav-cmp" onclick="goTo('cmp')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      COMPARAR
+    </button>
+    <button class="nb" id="nav-history" onclick="goTo('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg>
+      HISTÓRICO
+    </button>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+const DIRS=[
+  {id:'N',  name:'Estrutura',   type:'CARDINAL'},
+  {id:'S',  name:'Dados Reais', type:'CARDINAL'},
+  {id:'L',  name:'Percepção',   type:'CARDINAL'},
+  {id:'O',  name:'Impacto',     type:'CARDINAL'},
+  {id:'NE', name:'Estratégia',  type:'COLATERAL'},
+  {id:'SE', name:'Mercado',     type:'COLATERAL'},
+  {id:'SO', name:'Risco',       type:'COLATERAL'},
+  {id:'NO', name:'Visão',       type:'COLATERAL'},
+  {id:'NNE',name:'Técnica',     type:'SUBCOLATERAL'},
+  {id:'ENE',name:'Psicologia',  type:'SUBCOLATERAL'},
+  {id:'ESE',name:'Engajamento', type:'SUBCOLATERAL'},
+  {id:'SSE',name:'Métricas',    type:'SUBCOLATERAL'},
+  {id:'SSO',name:'Limitações',  type:'SUBCOLATERAL'},
+  {id:'OSO',name:'Competição',  type:'SUBCOLATERAL'},
+  {id:'ONO',name:'Inovação',    type:'SUBCOLATERAL'},
+  {id:'NNO',name:'Identidade',  type:'SUBCOLATERAL'},
+];
+const EV=['Fato','Dado parcial','Hipótese','Simulação'];
+const TOKEN='labx2026';
+const RATING_COLORS={AAA:'#00B894',AA:'#27AE60',A:'#2ECC71',B:'#F39C12',C:'#E67E22',D:'#E74C3C',E:'#8B0000'};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let analyses=[];
+try{analyses=JSON.parse(localStorage.getItem('labx_v3')||'[]');}catch(e){}
+let workerUrl=localStorage.getItem('labx_worker_url')||'';
+let workerOnline=false;
+let currentId=null, prevScreen='dash', radarInst=null, cmpInst=null;
+let oracleData=null, pendingVetores=null, cachedIBGE=null, macroFeed=null;
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('pt-BR');}
+setInterval(tick,1000); tick();
+document.getElementById('dash-date').textContent=
+  new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).toUpperCase();
+if(workerUrl) document.getElementById('worker-url').value=workerUrl;
+
+// ── WORKER ────────────────────────────────────────────────────────────────────
+async function testarWorker(){
+  const url=document.getElementById('worker-url').value.trim(); if(!url) return;
+  localStorage.setItem('labx_worker_url',url); workerUrl=url;
+  setSt('VERIFICANDO...','');
+  try{
+    const r=await fetch(url+'/health',{signal:AbortSignal.timeout(5000)});
+    const d=await r.json();
+    if(d.status==='online'){
+      workerOnline=true;
+      setSt('✓ ONLINE — v'+d.version+' · IBGE + BCB ATIVOS','ok');
+      document.getElementById('wdot').classList.add('on');
+      document.getElementById('wst-txt').textContent='WORKER: ONLINE';
+      document.getElementById('engine-mode').textContent='EDGE+IBGE';
+      document.getElementById('new-eng-lbl').textContent='MOTOR: CLOUDFLARE EDGE + IBGE + BCB';
+      document.getElementById('btn-sync').style.display='';
+      // Load economic feed
+      loadFeed();
+    }
+  }catch(e){workerOnline=false; setSt('✗ WORKER OFFLINE — motor local ativo','err');}
+}
+function setSt(m,c){const el=document.getElementById('wp-st'); el.textContent=m; el.className='wp-st '+c;}
+
+// ── ECONOMIC FEED ─────────────────────────────────────────────────────────────
+async function loadFeed(){
+  if(!workerOnline||!workerUrl) return;
+  try{
+    showLoad('CARREGANDO FEED BCB...');
+    const r=await fetch(workerUrl+'/feed',{headers:{'X-LABX-Token':TOKEN}});
+    const d=await r.json();
+    hideLoad();
+    macroFeed=d;
+    document.getElementById('feed-selic').innerHTML=d.selic?.valor+'%<span class="fi-trend">📊</span>';
+    document.getElementById('feed-selic-dt').textContent='BCB SGS #11 · '+d.selic?.data;
+    document.getElementById('feed-ipca').innerHTML=d.ipca?.valor+'%<span class="fi-trend">📈</span>';
+    document.getElementById('feed-ipca-dt').textContent='BCB SGS #433 · '+d.ipca?.data;
+    document.getElementById('feed-ibcbr').innerHTML=parseFloat(d.ibcbr?.valor).toFixed(1)+'<span class="fi-trend">🔵</span>';
+    document.getElementById('feed-ibcbr-dt').textContent='BCB SGS #24363 · '+d.ibcbr?.data;
+    document.getElementById('feed-cambio').innerHTML='R$'+parseFloat(d.cambio?.valor).toFixed(2);
+    document.getElementById('feed-cambio-dt').textContent='PTAX · '+d.cambio?.data;
+    document.getElementById('feed-src').textContent='Banco Central do Brasil · '+new Date(d.capturedAt).toLocaleString('pt-BR');
+    // SELIC warning
+    if(parseFloat(d.selic?.valor)>12){
+      document.getElementById('trend-selic').innerHTML=' ⚠';
+      document.getElementById('trend-selic').style.color='var(--red)';
+    }
+  }catch(e){hideLoad();}
+}
+
+// ── IBGE BUSCA ─────────────────────────────────────────────────────────────────
+async function buscarIBGE(){
+  const cod=document.getElementById('cod-ibge').value.trim();
+  if(!/^\d{7}$/.test(cod)){alert('Código IBGE deve ter 7 dígitos.');return;}
+  if(!workerOnline){alert('Worker offline. IBGE requer Worker.');return;}
+  showLoad('BUSCANDO DADOS IBGE...');
+  try{
+    const r=await fetch(workerUrl+'/ibge/'+cod,{headers:{'X-LABX-Token':TOKEN}});
+    const d=await r.json();
+    hideLoad();
+    if(d.error){alert('IBGE: '+d.error);return;}
+    cachedIBGE=d;
+    const row=document.getElementById('ibge-row');
+    row.classList.add('show');
+    document.getElementById('ibge-data-grid').innerHTML=`
+      <div class="ibge-d-item"><div class="ibge-d-lbl">Município</div><div class="ibge-d-val" style="font-size:.7rem">${d.nome||'—'}</div></div>
+      <div class="ibge-d-item"><div class="ibge-d-lbl">Empresas</div><div class="ibge-d-val">${d.empresas?.toLocaleString('pt-BR')||'—'}</div></div>
+      <div class="ibge-d-item"><div class="ibge-d-lbl">Pessoal</div><div class="ibge-d-val">${d.pessoal?.toLocaleString('pt-BR')||'—'}</div></div>`;
+    if(d.nome) document.getElementById('analysis-name').value='Análise · '+d.nome.toUpperCase();
+    if(d.populacao) document.getElementById('populacao').value=d.populacao;
+  }catch(e){hideLoad();alert('Erro ao buscar IBGE.');}
+}
+
+// ── ENGINE LOCAL (fallback sem worker) ─────────────────────────────────────────
+function engineLocal(renda,cnpjs,pop,pib,modo,bcb){
+  const rN=Math.min(renda/5000,1),dN=Math.min(cnpjs/200,1),pN=Math.min(pop/500000,1),gN=Math.min(pib/200,1);
+  const {selic=10.5,ipca=0.44,ibcbr=118}=bcb||{};
+  const selicN=Math.max(0,Math.min(1,(selic-2)/13));
+  const ipcaN=Math.max(0,Math.min(1,ipca/1.5));
+  const ibcN=Math.max(0,Math.min(1,(ibcbr-95)/50));
+  const sat=dN>.7?(dN-.7)*3:0, liq=(rN+gN)/2;
+  const c=v=>Math.max(0,Math.min(10,v));
+  const N=c((gN*8+pN*2)*modo),S=c((dN*5+rN*3+ibcN*2)*modo),L=c(((1-sat)*6+liq*3+ibcN)*modo),O=c((rN*4+gN*4+(1-selicN)*2)*modo);
+  const NE=c(((N+L)/2*.9)*modo),SE=c((gN*6+ibcN*2+rN*2)*.9*modo),SO=c((sat*4+selicN*4+(1-liq)*2)*.8*modo),NO=c(((N+O)/2*.9)*modo);
+  const NNE=c(((NE+N)/2*.85)*modo),ENE=c((liq*6+pN*2+(1-ipcaN)*2)*.8*modo),ESE=c((dN*4+rN*3+ibcN*3)*.8*modo);
+  const SSE=c((ibcN*7+(1-ipcaN)*3)*.85*modo),SSO=c((selicN*5+sat*3+(1-gN)*2)*.8*modo),OSO=c((sat*8+dN*2)*.8*modo);
+  const ONO=c(((NO+NE)/2*(ibcN>.5?1.1:.9)*.85)*modo),NNO=c(((N*.5+pN*3+ibcN*1.5)*.8)*modo);
+  const v={N,S,L,O,NE,SE,SO,NO,NNE,ENE,ESE,SSE,SSO,OSO,ONO,NNO};
+  Object.keys(v).forEach(k=>v[k]=parseFloat(v[k].toFixed(2)));
+  return v;
+}
+
+function avgArr(arr){return arr.reduce((s,v)=>s+v,0)/arr.length;}
+function iacFromVetores(v){
+  const c=[v.N,v.S,v.L,v.O], co=[v.NE,v.SE,v.SO,v.NO];
+  const s=[v.NNE,v.ENE,v.ESE,v.SSE,v.SSO,v.OSO,v.ONO,v.NNO];
+  return parseFloat((avgArr(c)*.5+avgArr(co)*.3+avgArr(s)*.2).toFixed(2));
+}
+
+// ── IAC / RATING CALC ─────────────────────────────────────────────────────────
+async function calcularIAC(){
+  const renda=+document.getElementById('renda').value||0;
+  const cnpjs=+document.getElementById('cnpjs').value||0;
+  const pop  =+document.getElementById('populacao').value||50000;
+  const pib  =+document.getElementById('pib').value||35;
+  const codM =document.getElementById('cod-mun').value.trim();
+  if(!renda||!cnpjs){alert('Preencha Renda e Densidade.');return;}
+
+  let resultado;
+  if(workerOnline&&workerUrl){
+    showLoad('CALCULANDO · IBGE + BCB + MSCL...');
+    try{
+      const r=await fetch(workerUrl+'/calcular',{method:'POST',headers:{'Content-Type':'application/json','X-LABX-Token':TOKEN},body:JSON.stringify({renda,cnpjs,populacao:pop,pib,modo:1.0,codMunicipio:codM||undefined,token:TOKEN})});
+      resultado=await r.json();
+    }catch(e){
+      const bcb=macroFeed?{selic:+macroFeed.selic.valor,ipca:+macroFeed.ipca.valor,ibcbr:+macroFeed.ibcbr.valor}:{};
+      const v=engineLocal(renda,cnpjs,pop,pib,1.0,bcb);
+      resultado={vetores:v,iac:iacFromVetores(v)};
+    }
+    hideLoad();
+  }else{
+    const v=engineLocal(renda,cnpjs,pop,pib,1.0,{});
+    resultado={vetores:v,iac:iacFromVetores(v)};
+  }
+
+  oracleData={...resultado,renda,cnpjs,pop,pib};
+
+  document.getElementById('iac-val').textContent=resultado.iac;
+  const v=resultado.vetores;
+
+  // Mini radar update
+  const p1=Math.max(5,50-(renda/180)),p2=Math.min(95,50+(cnpjs/5));
+  document.getElementById('mini-radar').setAttribute('points',`50,${p1} ${p2},50 50,${110-p1} ${100-p2},50`);
+
+  // Compass 8-point
+  const vArr=[v.N,v.NE,v.L,v.SE,v.S,v.SO,v.O,v.NO];
+  const angles=[270,315,0,45,90,135,180,225].map(a=>a*Math.PI/180);
+  const pts=vArr.map((val,i)=>{const r=(val/10)*48;return `${60+r*Math.cos(angles[i])},${60+r*Math.sin(angles[i])}`}).join(' ');
+  document.getElementById('compass-shape').setAttribute('points',pts);
+
+  // Grid 16D
+  document.getElementById('bussola-grid-wrap').style.display='';
+  document.getElementById('bussola-grid').innerHTML=Object.entries(v).map(([k,val])=>`
+    <div style="background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:7px;text-align:center;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.9rem;color:var(--blue)">${k}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:700;color:${noteColor(val)}">${val}</div>
+    </div>`).join('');
+
+  // Rating
+  if(resultado.rating){
+    const rt=resultado.rating;
+    const rc=RATING_COLORS[rt.rating]||'#7A8BA8';
+    document.getElementById('rating-inline').style.display='';
+    document.getElementById('ri-card').style.setProperty('--rc',rc);
+    document.getElementById('ri-card').querySelector('::before');
+    document.getElementById('ri-badge').textContent=rt.rating;
+    document.getElementById('ri-badge').style.color=rc;
+    document.getElementById('ri-desc').textContent=rt.desc;
+    document.getElementById('ri-score').textContent='Score: '+rt.score+'/10';
+    document.getElementById('ri-tracao').textContent=rt.pilares.tracao;
+    document.getElementById('ri-liquidez').textContent=rt.pilares.liquidez;
+    document.getElementById('ri-iac').textContent=rt.pilares.iac;
+    // top bar color
+    document.querySelectorAll('.rating-card')[0].style.cssText+=`--rc:${rc}`;
+    document.getElementById('ri-card').style.setProperty('border-top','4px solid '+rc);
+  }
+
+  // IBGE source info
+  if(resultado.fontes?.empresas)
+    document.getElementById('src-ibge').textContent=resultado.fontes.empresas.toLocaleString('pt-BR')+' empresas · CEMPRE';
+  else document.getElementById('src-ibge').textContent='Não disponível';
+
+  document.getElementById('bussola-info').innerHTML=
+    `IAC: <strong style="color:var(--blue)">${resultado.iac}</strong>`+
+    (resultado.rating?` · Rating: <strong style="color:${RATING_COLORS[resultado.rating.rating]}">${resultado.rating.rating}</strong>`:'');
+
+  document.getElementById('bridge-btn').classList.add('show');
+}
+
+// ── BRIDGE ────────────────────────────────────────────────────────────────────
+function bridgeToAnalysis(){
+  if(!oracleData) return;
+  pendingVetores=oracleData.vetores;
+  const city=document.getElementById('cityInput').value||document.getElementById('cod-mun').value||'Município';
+  document.getElementById('analysis-name').value='Análise · '+city.toUpperCase();
+  document.getElementById('analysis-context').value=`IAC ${oracleData.iac}`+(oracleData.rating?' · Rating '+oracleData.rating.rating:'');
+  document.getElementById('autofill-notice').style.display='';
+  goTo('new');
+  setTimeout(()=>prefill(pendingVetores),120);
+}
+function prefill(v){
+  DIRS.forEach(d=>{
+    const nota=Math.round(v[d.id]||5);
+    const peso=nota>=7?9:nota>=4?6:3;
+    const en=document.getElementById('n-'+d.id), ew=document.getElementById('w-'+d.id);
+    if(en) en.value=nota;
+    if(ew){ew.value=peso;document.getElementById('wv-'+d.id).textContent=peso;}
+  });
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function goTo(s){
+  if(s!=='detail') prevScreen=s;
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(x=>x.classList.remove('active'));
+  document.getElementById('screen-'+s).classList.add('active');
+  const nb=document.getElementById('nav-'+s); if(nb) nb.classList.add('active');
+  if(s==='dash'){renderDash();}
+  if(s==='history'){renderHistory();}
+  if(s==='new'){renderForm();}
+  if(s==='cmp'){renderCmpSelectors();}
+  window.scrollTo(0,0);
+}
+function goBack(){goTo(prevScreen||'dash');}
+function stab(el,id){
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.scnt').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); document.getElementById(id).classList.add('active');
+}
+function analisar(){
+  const city=document.getElementById('cityInput').value.trim(); if(!city) return;
+  const el=document.getElementById('city-name');
+  el.textContent='PROCESSANDO '+city.toUpperCase()+'...'; el.style.color='var(--blue)';
+  document.getElementById('iac-val').textContent='···';
+  document.getElementById('bridge-btn').classList.remove('show');
+  document.getElementById('rating-inline').style.display='none';
+  setTimeout(()=>{ el.textContent=city.toUpperCase()+' · SCAN CONCLUÍDO'; el.style.color='var(--muted)'; calcularIAC();},1200);
+}
+
+// ── FORM ──────────────────────────────────────────────────────────────────────
+function renderForm(){
+  document.getElementById('autofill-notice').style.display='none';
+  document.getElementById('ibge-row').classList.remove('show');
+  const t=document.getElementById('dir-form');
+  t.innerHTML=`<thead><tr><th>DIR.</th><th>PESO 0–10</th><th>EVIDÊNCIA</th><th>NOTA</th></tr></thead><tbody id="dir-body"></tbody>`;
+  const body=document.getElementById('dir-body');
+  let lt=null;
+  DIRS.forEach(d=>{
+    if(d.type!==lt){lt=d.type; const tr=document.createElement('tr'); tr.innerHTML=`<td colspan="4" class="tdiv">── ${d.type}S ──</td>`; body.appendChild(tr);}
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="dsym">${d.id}</div><div class="dnm">${d.name}</div></td>
+      <td><input type="range" class="msldr" id="w-${d.id}" min="0" max="10" value="5" oninput="document.getElementById('wv-${d.id}').textContent=this.value"><div class="sval" id="wv-${d.id}">5</div></td>
+      <td><select class="msel" id="e-${d.id}">${EV.map(x=>`<option>${x}</option>`).join('')}</select></td>
+      <td><input type="number" class="mnote" id="n-${d.id}" min="0" max="10" value="5"></td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById('analysis-name').value='';
+  document.getElementById('analysis-context').value='';
+  document.getElementById('cod-ibge').value='';
+  if(pendingVetores) setTimeout(()=>prefill(pendingVetores),60);
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────────
+async function submitAnalysis(){
+  const name=document.getElementById('analysis-name').value.trim()||'Análise '+(analyses.length+1);
+  const context=document.getElementById('analysis-context').value.trim();
+  const modo=+document.getElementById('analysis-modo').value;
+  const codM=document.getElementById('cod-ibge').value.trim();
+  const btn=document.getElementById('btn-calcular');
+  btn.disabled=true; btn.textContent='CALCULANDO...';
+
+  const dirs=DIRS.map(d=>({
+    id:d.id, name:d.name, type:d.type,
+    peso:+document.getElementById('w-'+d.id).value,
+    evidencia:document.getElementById('e-'+d.id).value,
+    nota:Math.min(10,Math.max(0,+document.getElementById('n-'+d.id).value||0))
+  }));
+
+  let rating=null, fontes=null;
+  if(workerOnline&&workerUrl){
+    showLoad('CALCULANDO RATING MSCL...');
+    try{
+      const renda=oracleData?.renda||2500, cnpjs=oracleData?.cnpjs||80;
+      const pop=oracleData?.pop||50000, pib=oracleData?.pib||35;
+      const r=await fetch(workerUrl+'/calcular',{method:'POST',headers:{'Content-Type':'application/json','X-LABX-Token':TOKEN},body:JSON.stringify({renda,cnpjs,populacao:pop,pib,modo,codMunicipio:codM||undefined,token:TOKEN})});
+      const d=await r.json();
+      rating=d.rating; fontes=d.fontes;
+      // Apply modo to manual notes
+      dirs.forEach(dir=>{ dir.nota=Math.min(10,parseFloat((dir.nota*modo).toFixed(2))); });
+    }catch(e){}
+    hideLoad();
+  }
+
+  const avg2=dirs.reduce((s,d)=>s+d.nota,0)/dirs.length;
+  const dom=[...dirs].sort((a,b)=>(b.nota*b.peso)-(a.nota*a.peso))[0];
+  const a={
+    id:'LAB-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).substr(2,4).toUpperCase(),
+    name, context, timestamp:Date.now(), directions:dirs,
+    engine:workerOnline?'worker':'local', rating, fontes,
+    results:{avg:avg2.toFixed(2),neg:dirs.filter(d=>d.nota<4).map(d=>d.id),crit:dirs.filter(d=>d.peso>=7&&d.nota<5).map(d=>d.id),dom:dom.id}
+  };
+  analyses.unshift(a); save();
+  pendingVetores=null; oracleData=null; cachedIBGE=null;
+  btn.disabled=false; btn.textContent='CALCULAR VETORES + RATING';
+  openDetail(a.id);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function ratingColor(r){return RATING_COLORS[r]||'#7A8BA8';}
+function noteColor(n){return n<4?'#E74C3C':n<7?'#F39C12':'#00B894';}
+function aCard(a){
+  const av=+a.results.avg;
+  const [tc,tl]=av>=7?['tg','FORTE']:av>=4?['ty','EQUILÍBRIO']:['tr','RISCO'];
+  const rt=a.rating?.rating;
+  return `<div class="acard" onclick="openDetail('${a.id}')">
+    ${rt?`<div class="ac-rt" style="color:${ratingColor(rt)}">${rt}</div>`:''}
+    <div class="ac-n">${a.name}</div>
+    <div class="ac-m">${a.id} · ${fmtDate(a.timestamp)}${a.engine==='worker'?' · ☁':''}</div>
+    <div class="tags">
+      <span class="tag ${tc}">${tl}</span>
+      <span class="tag tb">MÉD ${a.results.avg}</span>
+      <span class="tag tb">DOM ${a.results.dom}</span>
+      ${a.results.crit.length?`<span class="tag tr">⚠ ${a.results.crit.length} CRÍTICO</span>`:''}
+    </div>
+  </div>`;
+}
+function renderDash(){
+  document.getElementById('total-count').textContent=analyses.length;
+  const lr=analyses.length&&analyses[0].rating?.rating;
+  document.getElementById('last-rating').textContent=lr||'—';
+  if(lr) document.getElementById('last-rating').style.color=ratingColor(lr);
+  const el=document.getElementById('dash-list');
+  el.innerHTML=analyses.length?analyses.slice(0,5).map(aCard).join(''):`<div class="empty">NENHUMA ANÁLISE REGISTRADA</div>`;
+}
+function renderHistory(){
+  const el=document.getElementById('history-list');
+  el.innerHTML=analyses.length?analyses.map(aCard).join(''):`<div class="empty">SEM REGISTROS</div>`;
+}
+
+// ── DETAIL ────────────────────────────────────────────────────────────────────
+function openDetail(id){
+  currentId=id;
+  const a=analyses.find(x=>x.id===id); if(!a) return;
+  document.getElementById('detail-title').textContent=a.name;
+  document.getElementById('detail-meta').textContent=a.id+' · '+fmtDate(a.timestamp)+(a.context?' · '+a.context:'')+(a.engine==='worker'?' · ☁ EDGE':'');
+
+  // Rating block
+  if(a.rating){
+    const rt=a.rating, rc=ratingColor(rt.rating);
+    document.getElementById('detail-rating').innerHTML=`
+      <div class="rating-card" style="border-top:4px solid ${rc};">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div>
+            <div class="card-lbl">RATING MSCL</div>
+            <div class="rating-badge" style="color:${rc}">${rt.rating}</div>
+            <div class="rating-desc">${rt.desc}</div>
+            <div class="rating-score">Score: ${rt.score}/10</div>
+          </div>
+          <div class="pilares-grid" style="flex:1;">
+            <div class="pilar"><div class="pilar-lbl">Tração</div><div class="pilar-val">${rt.pilares.tracao}</div></div>
+            <div class="pilar"><div class="pilar-lbl">Liquidez</div><div class="pilar-val">${rt.pilares.liquidez}</div></div>
+            <div class="pilar"><div class="pilar-lbl">IAC</div><div class="pilar-val">${rt.pilares.iac}</div></div>
+          </div>
+        </div>
+        ${a.fontes?.selic?`<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="tag tb">SELIC ${a.fontes.selic}%</span>
+          <span class="tag tb">IPCA ${a.fontes.ipca}%</span>
+          <span class="tag tb">IBC-Br ${a.fontes.ibcbr}</span>
+          ${a.fontes.empresas?`<span class="tag tg">${a.fontes.empresas.toLocaleString('pt-BR')} empresas</span>`:''}
+        </div>`:''}
+      </div>`;
+  } else document.getElementById('detail-rating').innerHTML='';
+
+  const av=+a.results.avg;
+  const sc=av>=7?`<span style="color:var(--green);font-weight:700">FORTE</span>`:av>=4?`<span style="color:var(--yellow);font-weight:700">EQUILÍBRIO</span>`:`<span style="color:var(--red);font-weight:700">RISCO</span>`;
+  document.getElementById('results-grid').innerHTML=`
+    <div class="rc"><div class="rl">Média Geral</div><div class="rv">${a.results.avg}</div><div class="rs">${sc}</div></div>
+    <div class="rc"><div class="rl">Vetor Dominante</div><div class="rv">${a.results.dom}</div><div class="rs">${DIRS.find(d=>d.id===a.results.dom)?.name||''}</div></div>
+    <div class="rc"><div class="rl">Negligenciadas</div><div class="rv" style="color:${a.results.neg.length?'var(--yellow)':'var(--green)'}">${a.results.neg.length}</div><div class="rs">${a.results.neg.slice(0,4).join(', ')||'—'}</div></div>
+    <div class="rc"><div class="rl">Críticas</div><div class="rv" style="color:${a.results.crit.length?'var(--red)':'var(--green)'}">${a.results.crit.length}</div><div class="rs">${a.results.crit.slice(0,3).join(', ')||'—'}</div></div>`;
+
+  if(radarInst){radarInst.destroy();radarInst=null;}
+  radarInst=new Chart(document.getElementById('radarChart'),{
+    type:'radar',
+    data:{labels:a.directions.map(d=>d.id+' '+d.name),datasets:[
+      {label:'Nota',data:a.directions.map(d=>d.nota),backgroundColor:'rgba(0,71,255,.1)',borderColor:'rgba(0,71,255,.7)',pointBackgroundColor:a.directions.map(d=>noteColor(d.nota)),pointRadius:4,borderWidth:2},
+      {label:'Peso',data:a.directions.map(d=>d.peso),backgroundColor:'rgba(253,203,110,.07)',borderColor:'rgba(253,203,110,.5)',pointBackgroundColor:'rgba(253,203,110,.6)',pointRadius:2,borderWidth:1.5,borderDash:[4,4]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:10,ticks:{stepSize:2,color:'#7A8BA8',font:{family:'IBM Plex Mono',size:9},backdropColor:'transparent'},grid:{color:'#DDE3EE'},angleLines:{color:'#DDE3EE'},pointLabels:{color:'#3D4F6E',font:{family:'IBM Plex Mono',size:8}}}},plugins:{legend:{labels:{color:'#7A8BA8',font:{family:'IBM Plex Mono',size:9},boxWidth:12}}}}
+  });
+  document.getElementById('detail-dirs').innerHTML=a.directions.map(d=>{
+    const c=noteColor(d.nota);
+    return `<div class="drw"><div class="drw-s">${d.id}</div><div class="drw-i"><div class="drw-n">${d.name}</div><div class="drw-e">${d.evidencia} · PESO ${d.peso}</div></div><div class="drw-b"><div class="drw-tr"><div class="drw-f" style="width:${d.nota*10}%;background:${c}"></div></div><div class="drw-v" style="color:${c}">${d.nota}</div></div></div>`;
+  }).join('');
+  document.getElementById('btn-sync').style.display=workerOnline?'':'none';
+  goTo('detail');
+}
+
+// ── COMPARAR ──────────────────────────────────────────────────────────────────
+function renderCmpSelectors(){
+  const opts=analyses.map(a=>`<option value="${a.id}">${a.name} (${fmtDate(a.timestamp)})</option>`).join('');
+  document.getElementById('cmp-a').innerHTML='<option value="">— Análise A —</option>'+opts;
+  document.getElementById('cmp-b').innerHTML='<option value="">— Análise B —</option>'+opts;
+  document.getElementById('cmp-result').style.display='none';
+  document.getElementById('cmp-empty').style.display='';
+}
+function compararAnalises(){
+  const idA=document.getElementById('cmp-a').value, idB=document.getElementById('cmp-b').value;
+  if(!idA||!idB||idA===idB){alert('Selecione duas análises diferentes.');return;}
+  const a=analyses.find(x=>x.id===idA), b=analyses.find(x=>x.id===idB);
+  if(!a||!b) return;
+  document.getElementById('cmp-empty').style.display='none';
+  document.getElementById('cmp-result').style.display='';
+
+  // Radar chart
+  if(cmpInst){cmpInst.destroy();cmpInst=null;}
+  cmpInst=new Chart(document.getElementById('cmpChart'),{
+    type:'radar',
+    data:{
+      labels:DIRS.map(d=>d.id),
+      datasets:[
+        {label:a.name,data:a.directions.map(d=>d.nota),backgroundColor:'rgba(0,71,255,.12)',borderColor:'rgba(0,71,255,.8)',pointBackgroundColor:'#0047FF',pointRadius:3,borderWidth:2},
+        {label:b.name,data:b.directions.map(d=>d.nota),backgroundColor:'rgba(253,203,110,.12)',borderColor:'rgba(253,203,110,.8)',pointBackgroundColor:'#FDCB6E',pointRadius:3,borderWidth:2}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:10,ticks:{stepSize:2,color:'#7A8BA8',font:{family:'IBM Plex Mono',size:9},backdropColor:'transparent'},grid:{color:'#DDE3EE'},angleLines:{color:'#DDE3EE'},pointLabels:{color:'#3D4F6E',font:{family:'IBM Plex Mono',size:8}}}},plugins:{legend:{labels:{color:'#3D4F6E',font:{family:'IBM Plex Mono',size:9},boxWidth:10}}}}
+  });
+
+  // Gap table
+  const rows=DIRS.map(d=>{
+    const notaA=a.directions.find(x=>x.id===d.id)?.nota||0;
+    const notaB=b.directions.find(x=>x.id===d.id)?.nota||0;
+    const delta=parseFloat((notaA-notaB).toFixed(2));
+    const dc=delta>0?'var(--blue)':delta<0?'var(--red)':'var(--muted)';
+    const ds=delta>0?'▲':'▼';
+    return `<tr>
+      <td><div class="gap-sym">${d.id}</div><div class="gap-nm">${d.name}</div></td>
+      <td><div class="gap-bar"><div class="gap-fill" style="width:${notaA*7}px;background:rgba(0,71,255,.6)"></div><span class="gap-val" style="color:var(--blue)">${notaA}</span></div></td>
+      <td><div class="gap-bar"><div class="gap-fill" style="width:${notaB*7}px;background:rgba(253,203,110,.6)"></div><span class="gap-val" style="color:var(--amber-dp)">${notaB}</span></div></td>
+      <td><span class="gap-delta" style="color:${dc}">${delta!==0?ds:''} ${Math.abs(delta)||'='}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('gap-table').innerHTML=`<thead><tr><th>VETOR</th><th style="color:var(--blue);">${a.name.substring(0,12)}</th><th style="color:var(--amber-dp);">${b.name.substring(0,12)}</th><th>GAP</th></tr></thead><tbody>${rows}</tbody>`;
+
+  // Summary
+  const avgA=+a.results.avg, avgB=+b.results.avg;
+  const advantage=avgA>=avgB?a:b;
+  document.getElementById('cmp-summary').innerHTML=`
+    <div class="card-lbl">SUMÁRIO COMPARATIVO</div>
+    <div style="margin-top:10px;display:flex;gap:14px;">
+      <div style="flex:1;text-align:center;padding:12px;background:rgba(0,71,255,.06);border-radius:8px;border:1px solid rgba(0,71,255,.2);">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.42rem;color:var(--muted);">MÉD A</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;color:var(--blue)">${avgA}</div>
+        ${a.rating?`<div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.9rem;color:${ratingColor(a.rating.rating)}">${a.rating.rating}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;color:var(--muted);font-size:1.2rem;">VS</div>
+      <div style="flex:1;text-align:center;padding:12px;background:rgba(253,203,110,.08);border-radius:8px;border:1px solid rgba(253,203,110,.3);">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.42rem;color:var(--muted);">MÉD B</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;color:var(--amber-dp)">${avgB}</div>
+        ${b.rating?`<div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.9rem;color:${ratingColor(b.rating.rating)}">${b.rating.rating}</div>`:''}
+      </div>
+    </div>
+    <div style="margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:var(--txt2);line-height:1.8;background:var(--surf2);padding:10px;border-radius:8px;border:1px solid var(--border);">
+      ↗ Melhor desempenho geral: <strong style="color:var(--blue)">${advantage.name}</strong><br>
+      ✦ Maior gap: ${biggestGapDir(a,b)}
+    </div>`;
+}
+
+function biggestGapDir(a,b){
+  let mx=0, mxDir='';
+  DIRS.forEach(d=>{
+    const na=a.directions.find(x=>x.id===d.id)?.nota||0;
+    const nb=b.directions.find(x=>x.id===d.id)?.nota||0;
+    if(Math.abs(na-nb)>mx){mx=Math.abs(na-nb);mxDir=d.id+' '+d.name;}
+  });
+  return mxDir+' (Δ '+mx.toFixed(1)+')';
+}
+
+// ── EXPORT / IMPORT / SYNC ────────────────────────────────────────────────────
+function exportCurrentJSON(){
+  const a=analyses.find(x=>x.id===currentId); if(!a) return;
+  const b=new Blob([JSON.stringify(a,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b); const l=document.createElement('a');
+  l.href=u; l.download=a.id+'.json'; l.click(); URL.revokeObjectURL(u);
+}
+function importJSON(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{const d=JSON.parse(e.target.result);
+      if(d.id&&d.directions){if(!analyses.find(x=>x.id===d.id)){analyses.unshift(d);save();renderHistory();alert('Importado: '+d.id);}else alert('Análise já existe.');}
+      else alert('Arquivo inválido.');
+    }catch{alert('Erro ao ler arquivo.');}
+  };
+  r.readAsText(f); ev.target.value='';
+}
+async function syncWorker(){
+  const a=analyses.find(x=>x.id===currentId); if(!a||!workerOnline) return;
+  showLoad('SINCRONIZANDO...');
+  try{
+    const r=await fetch(workerUrl+'/salvar',{method:'POST',headers:{'Content-Type':'application/json','X-LABX-Token':TOKEN},body:JSON.stringify({...a,token:TOKEN})});
+    const d=await r.json();
+    if(d.ok) alert('✓ Sincronizado: '+d.id);
+  }catch{alert('Erro na sincronização.');}
+  hideLoad();
+}
+function deleteCurrentAnalysis(){
+  if(!currentId||!confirm('Excluir esta análise?'))return;
+  analyses=analyses.filter(a=>a.id!==currentId); save(); currentId=null; goTo('dash');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function fmtDate(ts){const d=new Date(ts); return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function save(){localStorage.setItem('labx_v3',JSON.stringify(analyses));}
+function showLoad(msg){document.getElementById('loading').classList.add('show');document.getElementById('loading-msg').textContent=msg||'PROCESSANDO...';}
+function hideLoad(){document.getElementById('loading').classList.remove('show');}
+
+// ── PWA ───────────────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+setTimeout(()=>{
+  renderForm(); renderDash();
+  if(workerUrl) testarWorker();
+}, 3400);
+</script>
+</body>
+</html>
