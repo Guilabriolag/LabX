@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAB-X 3.0 — Inteligência Territorial</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,700;0,800;0,900;1,700&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060810;--bg2:#0C1020;--bg3:#121830;
+  --blue:#0047FF;--blue2:#0035CC;--blue3:#001F80;
+  --amber:#FDCB6E;--amber2:#E6A817;
+  --green:#00B894;--red:#E74C3C;
+  --txt:#F0F4FF;--txt2:#8FA3C0;--muted:#3D5070;
+  --border:rgba(255,255,255,.06);--border2:rgba(0,71,255,.25);
+  --glow:0 0 60px rgba(0,71,255,.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--txt);font-family:'Barlow',sans-serif;overflow-x:hidden;}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 6%;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,8,16,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;letter-spacing:.06em;color:#fff;text-decoration:none;}
+.nav-logo span{color:var(--amber);}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.2em;color:var(--txt2);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover{color:var(--amber);}
+.nav-cta{background:var(--blue);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.15em;padding:9px 22px;border-radius:6px;text-decoration:none;text-transform:uppercase;transition:all .2s;border:1px solid transparent;}
+.nav-cta:hover{background:transparent;border-color:var(--blue);color:var(--blue);}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 6% 60px;position:relative;overflow:hidden;text-align:center;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,71,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,71,255,.05) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,black 0%,transparent 100%);}
+.hero-orb{position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,71,255,.14) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-55%);animation:orbPulse 6s ease-in-out infinite;pointer-events:none;}
+@keyframes orbPulse{0%,100%{transform:translate(-50%,-55%) scale(1);}50%{transform:translate(-50%,-55%) scale(1.08);}}
+.hero-scan{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--amber),transparent);animation:scan 5s linear infinite;opacity:.35;}
+@keyframes scan{0%{top:0%;}100%{top:100%;}}
+.hero-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.52rem;letter-spacing:.45em;color:var(--amber);margin-bottom:24px;animation:fadeUp .6s ease .1s both;}
+h1.hero-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(3.5rem,9vw,7.5rem);line-height:.92;letter-spacing:-.01em;color:#fff;margin-bottom:20px;animation:fadeUp .7s ease .2s both;}
+h1.hero-title em{font-style:normal;color:var(--amber);position:relative;}
+h1.hero-title em::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--amber);opacity:.35;}
+.hero-sub{font-size:1.05rem;font-weight:400;color:var(--txt2);max-width:560px;line-height:1.75;margin:0 auto 40px;animation:fadeUp .6s ease .35s both;}
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:60px;animation:fadeUp .6s ease .5s both;}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;letter-spacing:.18em;text-transform:uppercase;padding:15px 32px;border-radius:8px;text-decoration:none;box-shadow:0 8px 32px rgba(0,71,255,.4);transition:all .25s;border:none;cursor:pointer;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,71,255,.55);}
+.btn-ghost{display:inline-flex;align-items:center;gap:10px;background:transparent;color:var(--txt2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.15em;text-transform:uppercase;padding:15px 32px;border-radius:8px;text-decoration:none;border:1px solid var(--border2);transition:all .25s;}
+.btn-ghost:hover{color:var(--blue);border-color:var(--blue);}
+.hero-stats{display:flex;border:1px solid var(--border2);border-radius:12px;overflow:hidden;animation:fadeUp .6s ease .65s both;backdrop-filter:blur(8px);background:rgba(0,71,255,.04);}
+.hstat{padding:18px 32px;text-align:center;border-right:1px solid var(--border2);}
+.hstat:last-child{border-right:none;}
+.hstat-n{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.9rem;color:var(--amber);line-height:1;}
+.hstat-l{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+
+/* SECTIONS */
+section{padding:100px 6%;}
+.sec-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.35em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.sec-eyebrow::before{content:'';width:24px;height:1px;background:var(--amber);}
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(2rem,5vw,3.2rem);letter-spacing:-.01em;line-height:1;color:#fff;margin-bottom:16px;}
+.sec-sub{font-size:1rem;color:var(--txt2);line-height:1.75;max-width:540px;}
+
+/* FEATURES */
+.features-layout{display:grid;grid-template-columns:1fr 1fr;gap:1px;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:60px;background:var(--border);}
+.feat-card{background:var(--bg2);padding:36px 32px;position:relative;overflow:hidden;transition:background .3s;}
+.feat-card:hover{background:var(--bg3);}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--amber));transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+.feat-card:hover::before{transform:scaleX(1);}
+.feat-icon{width:48px;height:48px;background:rgba(0,71,255,.1);border:1px solid rgba(0,71,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:20px;}
+.feat-num{font-family:'IBM Plex Mono',monospace;font-size:.44rem;letter-spacing:.25em;color:var(--muted);margin-bottom:10px;}
+.feat-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:.03em;color:#fff;margin-bottom:10px;}
+.feat-desc{font-size:.82rem;color:var(--txt2);line-height:1.75;}
+.feat-tag{display:inline-block;margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:.43rem;letter-spacing:.15em;background:rgba(0,71,255,.1);color:#7EB3FF;border:1px solid rgba(0,71,255,.22);padding:4px 10px;border-radius:4px;text-transform:uppercase;}
+
+/* HOW IT WORKS */
+#how{background:var(--bg2);position:relative;}
+#how::before{content:'';position:absolute;top:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:60px;position:relative;}
+.steps-grid::before{content:'';position:absolute;top:36px;left:calc(16.66% + 24px);right:calc(16.66% + 24px);height:1px;background:linear-gradient(90deg,var(--border2),var(--amber),var(--border2));}
+.step-item{text-align:center;position:relative;}
+.step-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--blue3),var(--blue2));border:1px solid rgba(0,71,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:#fff;position:relative;z-index:1;box-shadow:0 0 24px rgba(0,71,255,.3);}
+.step-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;color:#fff;margin-bottom:10px;letter-spacing:.04em;}
+.step-desc{font-size:.78rem;color:var(--txt2);line-height:1.7;}
+
+/* RATINGS */
+.ratings-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
+.ratings-showcase{display:flex;flex-direction:column;gap:9px;margin-top:50px;}
+.r-row{display:flex;align-items:center;gap:14px;padding:12px 18px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);transition:all .2s;}
+.r-row:hover{border-color:var(--border2);background:var(--bg3);}
+.r-badge{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.2rem;min-width:48px;text-align:center;}
+.r-bar{flex:1;height:4px;border-radius:2px;overflow:hidden;background:rgba(255,255,255,.06);}
+.r-fill{height:100%;border-radius:2px;}
+.r-desc{font-size:.7rem;color:var(--txt2);min-width:180px;}
+.rAAA .r-badge{color:#00B894;} .rAAA .r-fill{background:#00B894;width:100%;}
+.rAA  .r-badge{color:#27AE60;} .rAA  .r-fill{background:#27AE60;width:86%;}
+.rA   .r-badge{color:#2ECC71;} .rA   .r-fill{background:#2ECC71;width:72%;}
+.rB   .r-badge{color:#F39C12;} .rB   .r-fill{background:#F39C12;width:58%;}
+.rC   .r-badge{color:#E67E22;} .rC   .r-fill{background:#E67E22;width:44%;}
+.rD   .r-badge{color:#E74C3C;} .rD   .r-fill{background:#E74C3C;width:30%;}
+.rE   .r-badge{color:#8B1A1A;} .rE   .r-fill{background:#8B1A1A;width:14%;}
+.ratings-formula{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px 28px;}
+.rf-title{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.25em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+.pilares{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.pilar{background:var(--bg3);border-radius:8px;padding:14px;text-align:center;border:1px solid var(--border);}
+.pilar-pct{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.8rem;color:var(--amber);line-height:1;}
+.pilar-nm{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-top:3px;}
+.pilar-src{font-size:.62rem;color:var(--muted);margin-top:3px;opacity:.6;}
+
+/* CASES */
+.cases-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:52px;}
+.case-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:28px;transition:all .3s;position:relative;overflow:hidden;}
+.case-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,71,255,.07),transparent 60%);opacity:0;transition:opacity .3s;}
+.case-card:hover{border-color:rgba(0,71,255,.28);transform:translateY(-4px);}
+.case-card:hover::after{opacity:1;}
+.case-quote{font-size:.88rem;color:var(--txt);line-height:1.8;margin-bottom:20px;font-style:italic;position:relative;padding-left:18px;}
+.case-quote::before{content:'"';position:absolute;left:0;top:-8px;font-family:'Barlow Condensed',sans-serif;font-size:3rem;color:var(--blue);opacity:.35;line-height:1;}
+.case-author{display:flex;align-items:center;gap:12px;}
+.case-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blue3),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.95rem;color:#fff;flex-shrink:0;}
+.case-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;color:#fff;}
+.case-role{font-size:.68rem;color:var(--muted);}
+
+/* DATA */
+#data{background:var(--bg2);}
+.sources-row{display:flex;gap:18px;margin-top:48px;flex-wrap:wrap;}
+.source-card{flex:1;min-width:220px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px;transition:border-color .2s;}
+.source-card:hover{border-color:var(--border2);}
+.source-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;background:rgba(0,71,255,.1);color:#7EB3FF;border:1px solid rgba(0,71,255,.2);padding:4px 10px;border-radius:4px;margin-bottom:14px;}
+.source-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;color:#fff;margin-bottom:8px;}
+.source-desc{font-size:.75rem;color:var(--txt2);line-height:1.7;}
+.source-series{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;}
+.s-chip{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.1em;background:rgba(253,203,110,.07);color:var(--amber);border:1px solid rgba(253,203,110,.18);padding:3px 8px;border-radius:3px;}
+
+/* LEAD FORM */
+#lead{background:var(--bg);position:relative;overflow:hidden;}
+#lead::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,71,255,.11),transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.lead-inner{max-width:600px;margin:0 auto;text-align:center;position:relative;z-index:1;}
+.lead-form{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:48px;margin-top:48px;box-shadow:var(--glow);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-field{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-family:'IBM Plex Mono',monospace;font-size:.43rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;}
+.form-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 16px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;width:100%;}
+.form-input:focus{border-color:var(--blue);}
+.form-input::placeholder{color:var(--muted);}
+.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 16px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;width:100%;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234A5068' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.form-check{display:flex;align-items:flex-start;gap:10px;margin:16px 0 24px;text-align:left;}
+.form-check input[type=checkbox]{width:16px;height:16px;flex-shrink:0;accent-color:var(--blue);margin-top:2px;cursor:pointer;}
+.form-check label{font-size:.74rem;color:var(--muted);line-height:1.6;}
+.form-check label a{color:var(--blue);text-decoration:none;}
+.btn-submit{width:100%;background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.2em;padding:17px;border-radius:10px;text-transform:uppercase;box-shadow:0 8px 28px rgba(0,71,255,.4);transition:all .25s;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(0,71,255,.5);}
+.form-success{display:none;text-align:center;padding:32px;}
+.form-success .sicon{width:64px;height:64px;border-radius:50%;background:rgba(0,184,148,.12);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.8rem;}
+.form-success h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;color:#fff;margin-bottom:10px;}
+.form-success p{font-size:.85rem;color:var(--txt2);}
+
+/* FOOTER */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 6%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.footer-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.2rem;color:#fff;}
+.footer-logo span{color:var(--amber);}
+.footer-copy{font-family:'IBM Plex Mono',monospace;font-size:.43rem;letter-spacing:.15em;color:var(--muted);}
+.footer-links{display:flex;gap:18px;}
+.footer-links a{font-family:'IBM Plex Mono',monospace;font-size:.43rem;letter-spacing:.15em;color:var(--muted);text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.footer-links a:hover{color:var(--amber);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes shakeX{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+@media(max-width:900px){
+  .nav-links{display:none;}
+  .features-layout{grid-template-columns:1fr;}
+  .ratings-layout{grid-template-columns:1fr;}
+  .cases-grid{grid-template-columns:1fr;}
+  .steps-grid{grid-template-columns:1fr;gap:24px;}
+  .steps-grid::before{display:none;}
+  .form-row{grid-template-columns:1fr;}
+  .hero-stats{flex-wrap:wrap;}
+  .hstat{border-right:1px solid var(--border2);flex:1;min-width:120px;}
+  footer{flex-direction:column;text-align:center;}
+  .footer-links{justify-content:center;}
+}
+@media(max-width:480px){
+  .lead-form{padding:28px 18px;}
+  section{padding:70px 5%;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">LAB<span>-X</span></a>
+  <div class="nav-links">
+    <a href="#features">Funcionalidades</a>
+    <a href="#how">Como funciona</a>
+    <a href="#cases">Casos de uso</a>
+    <a href="#data">Dados</a>
+    <a href="#lead">Contato</a>
+  </div>
+  <a href="#lead" class="nav-cta">Solicitar acesso</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-scan"></div>
+  <div class="hero-eyebrow">LABRIOLAG HOLDING &nbsp;·&nbsp; DATA INTELLIGENCE &nbsp;·&nbsp; V3.0</div>
+  <h1 class="hero-title">Inteligência<br><em>Territorial</em><br>em tempo real</h1>
+  <p class="hero-sub">Diagnósticos de mercado, ratings de atratividade e análises vetoriais 16D com dados reais do IBGE e Banco Central do Brasil.</p>
+  <div class="hero-actions">
+    <a href="#lead" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Solicitar acesso
+    </a>
+    <a href="#features" class="btn-ghost">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 8 16 12 12 16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ver funcionalidades
+    </a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-n">16D</div><div class="hstat-l">Motor vetorial</div></div>
+    <div class="hstat"><div class="hstat-n">5.570</div><div class="hstat-l">Municípios</div></div>
+    <div class="hstat"><div class="hstat-n">AAA→E</div><div class="hstat-l">Rating MSCL</div></div>
+    <div class="hstat"><div class="hstat-n" style="font-size:1.3rem;padding-top:3px;">BCB+IBGE</div><div class="hstat-l">Dados ao vivo</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background:var(--bg);">
+  <div class="sec-eyebrow reveal">Funcionalidades</div>
+  <h2 class="sec-title reveal">Tudo que você precisa<br>para decidir com dados</h2>
+  <p class="sec-sub reveal">Oito módulos integrados que cobrem desde o diagnóstico rápido até a análise comparativa de longo prazo.</p>
+  <div class="features-layout reveal">
+    <div class="feat-card">
+      <div class="feat-icon">⭐</div>
+      <div class="feat-num">01 · ORÁCULO</div>
+      <div class="feat-title">Diagnóstico Territorial</div>
+      <p class="feat-desc">Scan instantâneo de qualquer município. IAC, Rating MSCL, Bússola Vetorial e indicadores econômicos ao vivo. Resultado em segundos.</p>
+      <span class="feat-tag">IBGE + BCB Live</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔬</div>
+      <div class="feat-num">02 · MOTOR VETORIAL</div>
+      <div class="feat-title">Análise Vetorial 16D</div>
+      <p class="feat-desc">Matrizes completas com 16 direções — Estrutura, Mercado, Risco, Inovação e mais. Cada vetor pontuado com tipo de evidência e peso metodológico.</p>
+      <span class="feat-tag">Motor próprio</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏆</div>
+      <div class="feat-num">03 · MSCL</div>
+      <div class="feat-title">Rating de Mercado</div>
+      <p class="feat-desc">Classificação de AAA a E baseada em três pilares auditáveis: Tração IBGE (40%), Liquidez BCB (35%) e IAC Vetorial (25%).</p>
+      <span class="feat-tag">Metodologia própria</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⚖️</div>
+      <div class="feat-num">04 · COMPARADOR</div>
+      <div class="feat-title">Análise de Gaps</div>
+      <p class="feat-desc">Compare duas análises com radar chart sobreposto e tabela de gaps por vetor. Identifique onde cada território se destaca ou perde vantagem.</p>
+      <span class="feat-tag">Radar 16D</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📡</div>
+      <div class="feat-num">05 · LIVE DATA</div>
+      <div class="feat-title">Economic Feed</div>
+      <p class="feat-desc">SELIC, IPCA, IBC-Br e câmbio direto do Banco Central. Indicadores entram automaticamente nos cálculos de Rating e IAC.</p>
+      <span class="feat-tag">BCB SGS · Tempo real</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📦</div>
+      <div class="feat-num">06 · HISTÓRICO</div>
+      <div class="feat-title">Banco de Análises</div>
+      <p class="feat-desc">Salve, exporte em JSON e sincronize análises via Cloud. Histórico corporativo multiplataforma para decisões de longo prazo.</p>
+      <span class="feat-tag">Export · Cloud · JSON</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="sec-eyebrow reveal">Como funciona</div>
+  <h2 class="sec-title reveal">Do dado bruto ao<br>diagnóstico em 3 passos</h2>
+  <div class="steps-grid reveal">
+    <div class="step-item">
+      <div class="step-circle">1</div>
+      <div class="step-title">Insira o território</div>
+      <p class="step-desc">Digite o nome do município ou código IBGE. O sistema busca automaticamente os dados do CEMPRE, população e PIB per capita em tempo real.</p>
+    </div>
+    <div class="step-item">
+      <div class="step-circle" style="background:linear-gradient(135deg,#7a4e00,var(--amber2));border-color:rgba(253,203,110,.4);box-shadow:0 0 24px rgba(253,203,110,.18);">2</div>
+      <div class="step-title">Motor processa os vetores</div>
+      <p class="step-desc">O algoritmo processa 16 direções combinando dados do IBGE, BCB e inputs da análise. Cada vetor recebe peso, evidência e tipo metodológico.</p>
+    </div>
+    <div class="step-item">
+      <div class="step-circle" style="background:linear-gradient(135deg,#005535,var(--green));border-color:rgba(0,184,148,.4);box-shadow:0 0 24px rgba(0,184,148,.18);">3</div>
+      <div class="step-title">Receba o diagnóstico</div>
+      <p class="step-desc">IAC, Rating MSCL, Bússola vetorial e recomendação estratégica. Pronto para exportar, comparar ou sincronizar com o histórico corporativo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RATINGS -->
+<section id="ratings" style="background:var(--bg);padding-top:80px;padding-bottom:80px;">
+  <div class="ratings-layout">
+    <div>
+      <div class="sec-eyebrow reveal">Rating MSCL</div>
+      <h2 class="sec-title reveal">Classificação<br>de mercado<br>auditável</h2>
+      <p class="sec-sub reveal">Calculado com fórmula aberta baseada em dados públicos do governo federal. Transparente do início ao fim.</p>
+    </div>
+    <div>
+      <div class="ratings-showcase reveal">
+        <div class="r-row rAAA"><span class="r-badge">AAA</span><div class="r-bar"><div class="r-fill"></div></div><span class="r-desc">Oceano Azul — Alta renda, baixa saturação</span></div>
+        <div class="r-row rAA"><span class="r-badge">AA</span><div class="r-bar"><div class="r-fill"></div></div><span class="r-desc">Expansão qualificada — Mercado receptivo</span></div>
+        <div class="r-row rA"><span class="r-badge">A</span><div class="r-bar"><div class="r-fill"></div></div><span class="r-desc">Maturação — Ótimo para consolidação</span></div>
+        <div class="r-row rB"><span class="r-badge">B</span><div class="r-bar"><div class="r-fill"></div></div><span class="r-desc">Competitivo — Nicho necessário</span></div>
+        <div class="r-row rC"><span class="r-badge">C</span><div class="r-bar"><div class="r-fill"></div></div><span class="r-desc">Saturação moderada — Renda estagnada</span></div>
+        <div class="r-row rD"><span class="r-badge">D</span><div class="r-bar"><div class="r-fill"></div></div><span class="r-desc">Risco elevado — Baixa liquidez</span></div>
+        <div class="r-row rE"><span class="r-badge">E</span><div class="r-bar"><div class="r-fill"></div></div><span class="r-desc">Risco crítico — Não recomendado</span></div>
+      </div>
+      <div class="ratings-formula reveal">
+        <div class="rf-title">Composição do score</div>
+        <div class="pilares">
+          <div class="pilar"><div class="pilar-pct">40%</div><div class="pilar-nm">Tração</div><div class="pilar-src">IBGE CEMPRE</div></div>
+          <div class="pilar"><div class="pilar-pct">35%</div><div class="pilar-nm">Liquidez</div><div class="pilar-src">BCB SELIC/IPCA</div></div>
+          <div class="pilar"><div class="pilar-pct">25%</div><div class="pilar-nm">IAC</div><div class="pilar-src">Motor Vetorial</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASES -->
+<section id="cases" style="background:var(--bg2);">
+  <div class="sec-eyebrow reveal">Casos de uso</div>
+  <h2 class="sec-title reveal">Quem usa o LAB-X</h2>
+  <p class="sec-sub reveal">Empresas, consultores e investidores que tomam decisões com inteligência territorial.</p>
+  <div class="cases-grid reveal">
+    <div class="case-card">
+      <p class="case-quote">Antes de abrir nossa quarta unidade, rodamos o Oráculo em 12 municípios do interior paulista. O rating AAA confirmou nossa decisão de expandir naquela região.</p>
+      <div class="case-author">
+        <div class="case-avatar">RS</div>
+        <div><div class="case-name">Ricardo Santos</div><div class="case-role">CEO · Rede de Franquias — Alimentação</div></div>
+      </div>
+    </div>
+    <div class="case-card">
+      <p class="case-quote">Usamos a Análise Vetorial 16D para avaliar cinco municípios candidatos a um polo logístico. O comparador economizou semanas de análise manual da nossa equipe.</p>
+      <div class="case-author">
+        <div class="case-avatar">CM</div>
+        <div><div class="case-name">Carlos Menezes</div><div class="case-role">Diretor de Expansão · Grupo Logístico</div></div>
+      </div>
+    </div>
+    <div class="case-card">
+      <p class="case-quote">O Economic Feed com dados ao vivo do BCB mudou nossa forma de analisar viabilidade. A variação da SELIC já entra automaticamente nos cálculos de cada análise.</p>
+      <div class="case-author">
+        <div class="case-avatar">AP</div>
+        <div><div class="case-name">Ana Paula Ferreira</div><div class="case-role">Analista de Mercado · Consultoria</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA SOURCES -->
+<section id="data">
+  <div class="sec-eyebrow reveal">Fontes de dados</div>
+  <h2 class="sec-title reveal">Dados oficiais,<br>não estimativas</h2>
+  <p class="sec-sub reveal">O LAB-X integra exclusivamente fontes primárias do governo federal via APIs públicas certificadas.</p>
+  <div class="sources-row reveal">
+    <div class="source-card">
+      <span class="source-badge">IBGE</span>
+      <div class="source-name">Instituto Brasileiro de Geografia e Estatística</div>
+      <p class="source-desc">Dados do CEMPRE — empresas ativas, pessoal ocupado, estimativas populacionais e PIB por município.</p>
+      <div class="source-series">
+        <span class="s-chip">CEMPRE / Tab. 6321</span>
+        <span class="s-chip">Pessoal Ocupado</span>
+        <span class="s-chip">Pop. Estimada</span>
+        <span class="s-chip">PIB Municipal</span>
+      </div>
+    </div>
+    <div class="source-card">
+      <span class="source-badge">BCB · SGS</span>
+      <div class="source-name">Banco Central do Brasil — Sistema Gerenciador de Séries</div>
+      <p class="source-desc">Séries temporais de indicadores macroeconômicos em tempo real, atualizados automaticamente no Economic Feed.</p>
+      <div class="source-series">
+        <span class="s-chip">SELIC · SGS #11</span>
+        <span class="s-chip">IPCA · #433</span>
+        <span class="s-chip">IBC-Br · #24363</span>
+        <span class="s-chip">USD/BRL PTAX</span>
+        <span class="s-chip">IGP-M · #189</span>
+      </div>
+    </div>
+    <div class="source-card">
+      <span class="source-badge">EDGE · CF</span>
+      <div class="source-name">Cloudflare Workers — Edge Computing Global</div>
+      <p class="source-desc">Backend serverless na edge global com cache inteligente para dados macro (4h) e IBGE (24h). KV Storage para histórico de análises.</p>
+      <div class="source-series">
+        <span class="s-chip">KV Storage</span>
+        <span class="s-chip">Cache IBGE 24h</span>
+        <span class="s-chip">Cache BCB 4h</span>
+        <span class="s-chip">API REST</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEAD FORM -->
+<section id="lead">
+  <div class="lead-inner">
+    <div class="sec-eyebrow" style="justify-content:center;">Acesso à plataforma</div>
+    <h2 class="sec-title">Solicite seu acesso<br>ao LAB-X</h2>
+    <p class="sec-sub" style="margin:0 auto;">Para empresas, consultores e investidores. Preencha o formulário e entraremos em contato em até 24h.</p>
+
+    <div class="lead-form reveal" id="leadForm">
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Nome completo</label>
+          <input class="form-input" type="text" id="f-nome" placeholder="Seu nome">
+        </div>
+        <div class="form-field">
+          <label class="form-label">E-mail corporativo</label>
+          <input class="form-input" type="email" id="f-email" placeholder="voce@empresa.com.br">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Empresa / Organização</label>
+          <input class="form-input" type="text" id="f-empresa" placeholder="Nome da empresa">
+        </div>
+        <div class="form-field">
+          <label class="form-label">WhatsApp</label>
+          <input class="form-input" type="tel" id="f-tel" placeholder="(11) 99999-9999">
+        </div>
+      </div>
+      <div class="form-field" style="margin-bottom:14px;">
+        <label class="form-label">Perfil de uso</label>
+        <select class="form-select" id="f-perfil">
+          <option value="">Selecione seu perfil</option>
+          <option value="franquia">Expansão de Franquias</option>
+          <option value="imobiliario">Mercado Imobiliário</option>
+          <option value="consultoria">Consultoria Estratégica</option>
+          <option value="govpub">Órgão Público / Prefeitura</option>
+          <option value="investidor">Investidor / Fundo</option>
+          <option value="industria">Indústria / Logística</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div class="form-field" style="margin-bottom:0;">
+        <label class="form-label">Como pretende usar o LAB-X? (opcional)</label>
+        <textarea class="form-input" id="f-uso" rows="3" placeholder="Descreva brevemente seu caso de uso..." style="resize:vertical;"></textarea>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="f-lgpd">
+        <label for="f-lgpd">Concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>. Meus dados serão usados exclusivamente para contato comercial, conforme a LGPD.</label>
+      </div>
+      <button class="btn-submit" onclick="submitLead()">Solicitar acesso ao LAB-X &rarr;</button>
+    </div>
+
+    <div class="form-success" id="formSuccess">
+      <div class="sicon">✓</div>
+      <h3>Solicitação recebida!</h3>
+      <p>Entraremos em contato em até <strong style="color:var(--amber)">24 horas</strong> com as informações de acesso. Verifique também sua caixa de spam.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">LAB<span>-X</span> <span style="font-weight:300;font-size:.85rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:.1em;">3.0</span></div>
+  <div class="footer-copy">&copy; 2025 LABRIOLAG HOLDING &nbsp;·&nbsp; TODOS OS DIREITOS RESERVADOS</div>
+  <div class="footer-links">
+    <a href="#">Termos</a>
+    <a href="#">Privacidade</a>
+    <a href="#">Contato</a>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold:0.1, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Active nav
+window.addEventListener('scroll', () => {
+  let cur = '';
+  document.querySelectorAll('section[id]').forEach(s => {
+    if(window.scrollY >= s.offsetTop - 100) cur = s.id;
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.style.color = a.getAttribute('href') === '#'+cur ? 'var(--amber)' : '';
+  });
+}, { passive:true });
+
+// Phone mask
+document.getElementById('f-tel').addEventListener('input', function(){
+  let v = this.value.replace(/\D/g,'').substring(0,11);
+  if(v.length > 2) v = '('+v.substring(0,2)+') '+v.substring(2);
+  if(v.length > 10) v = v.substring(0,10)+'-'+v.substring(10);
+  this.value = v;
+});
+
+// Submit
+function submitLead(){
+  const nome    = document.getElementById('f-nome').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const empresa = document.getElementById('f-empresa').value.trim();
+  const lgpd    = document.getElementById('f-lgpd').checked;
+
+  if(!nome)                      { shake('f-nome');    return; }
+  if(!email||!email.includes('@')){ shake('f-email');   return; }
+  if(!empresa)                   { shake('f-empresa'); return; }
+  if(!lgpd){ toast('Aceite os termos para continuar.'); return; }
+
+  const payload = {
+    nome, email, empresa,
+    tel:    document.getElementById('f-tel').value,
+    perfil: document.getElementById('f-perfil').value,
+    uso:    document.getElementById('f-uso').value,
+    ts:     new Date().toISOString(),
+    origem: 'labx-landing'
+  };
+  console.log('Lead:', payload);
+  // fetch('/api/leads', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
+
+  document.getElementById('leadForm').style.display   = 'none';
+  document.getElementById('formSuccess').style.display = 'block';
+}
+
+function shake(id){
+  const el = document.getElementById(id);
+  el.style.borderColor = 'var(--red)';
+  el.style.animation = '';
+  requestAnimationFrame(() => { el.style.animation = 'shakeX .4s ease'; });
+  setTimeout(() => { el.style.borderColor = ''; }, 2000);
+}
+
+function toast(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1a2235;border:1px solid var(--red);color:var(--txt);font-family:IBM Plex Mono,monospace;font-size:.58rem;padding:12px 18px;border-radius:8px;z-index:9998;letter-spacing:.05em;';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+</script>
+</body>
+</html>
